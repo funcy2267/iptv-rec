@@ -1,4 +1,5 @@
 *.mpg
+*.bak
 __pycache__/
 /iptvcat-scraper/iptvcat-scraper
 /iptvcat-scraper/data/
