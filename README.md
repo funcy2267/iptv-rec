@@ -1,5 +1,5 @@
 # About
-`iptv-rec` lets you easily watch and record IPTV channels.\
+**iptv-rec** lets you easily watch and record IPTV channels.\
 Main feature is IPTV-Cat integration for searching streams.
 # Requirements
 - python3
@@ -7,7 +7,7 @@ Main feature is IPTV-Cat integration for searching streams.
 - vlc
 # Configuration
 Inside `iptvcat-scraper` directory:
-- Run `mkdir data && go install && go build` to create *data/* folder, install dependencies and build the scraper.
+- Run `mkdir data && go install && go build` to create *data/* folder, install dependencies and build the IPTV-Cat scraper.
 # Usage
 Run `./iptv` with following options:
 - `--name` [required] - channel name to search (use `_` instead of spaces)
