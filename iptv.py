@@ -14,13 +14,14 @@ arg_status = ''
 arg_country = ''
 arg_liveliness = 0
 arg_mbps = 0
+arg_mode = 's'
 
 i=0
 for arg in args:
     if arg == "--name":
         arg_name = args[i+1]
     if arg == "--mode":
-        arg_mode = args[i+1]
+        arg_mode = arg_mode + args[i+1]
     if arg == "--status":
         arg_status = args[i+1]
     if arg == "--country":
@@ -63,4 +64,4 @@ else:
         i=i+1
     result_index = int(input('Which stream to use? '))-1
 
-os.system('./iptv-rec.sh'+' '+result[result_index]['link']+' '+arg_output+' '+arg_time+' '+arg_mode)
+os.system('./iptv-rec.sh '+result[result_index]['link']+' '+arg_output+' '+arg_time+' '+arg_mode)

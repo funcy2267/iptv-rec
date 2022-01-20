@@ -16,7 +16,9 @@ vlc_preview() {
 	timeout $3s $VLC_BIN -vvv http://$VLC_SERVER_DEST:$VLC_SERVER_PORT --run-time=$3
 }
 
-vlc_server $1 $2 $3 $4 &
+if [[ $4 =~ 's' ]]; then
+	vlc_server $1 $2 $3 $4 &
+fi
 if [[ $4 =~ 'r' ]]; then
 	vlc_record $1 $2 $3 $4 &
 fi
