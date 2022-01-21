@@ -102,7 +102,7 @@ func getStream(streamTable *colly.HTMLElement, streamDataRow *goquery.Selection)
 		ID:          streamID,
 		Link:        streamLink,
 		Channel:     streamChannel,
-		Country:     strings.ToLower(streamCountry),
+		Country:     strings.ReplaceAll(strings.ToLower(streamCountry), " ", "_"),
 		Liveliness:  streamLiveliness,
 		Status:      strings.ToLower(streamStatus),
 		Format:      strings.ToLower(streamHDFormat),

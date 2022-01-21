@@ -2,4 +2,5 @@
 *.bak
 __pycache__/
 /iptvcat-scraper/iptvcat-scraper
+/iptvcat-scraper/iptvcat-scraper.exe
 /iptvcat-scraper/data/
