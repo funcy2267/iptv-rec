@@ -5,9 +5,8 @@ import subprocess
 import platform
 import json
 
-VLC_SERVER_DESTINATION = "127.0.0.1"
+VLC_SERVER_TARGET = "127.0.0.1"
 VLC_SERVER_PORT = "8989"
-VLC_SERVER_URL = VLC_SERVER_DESTINATION+':'+VLC_SERVER_PORT
 
 ScraperPath = './iptvcat-scraper/'
 args = sys.argv
@@ -45,7 +44,13 @@ for arg in args:
         arg_time = int(args[i+1])
     if arg == "--link":
         arg_link = args[i+1]
+    if arg == "--target":
+        VLC_SERVER_TARGET = args[i+1]
+    if arg == "--port":
+        VLC_SERVER_PORT = args[i+1]
     i=i+1
+
+VLC_SERVER_URL = VLC_SERVER_TARGET+':'+VLC_SERVER_PORT
 
 if arg_link == '':
     os.chdir(ScraperPath)

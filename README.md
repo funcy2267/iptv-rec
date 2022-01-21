@@ -42,3 +42,5 @@ Run `./iptv-rec.py` or `py .\iptv-rec.py` with following arguments provided:
 - `--output` [optional] - output file for recording (must be an `.mpg`)
 - `--time` [optional] - time limit for recording/preview in *seconds* (the default is **60**)
 - `--link` [optional] - use custom link for IPTV stream
+- `--target` [optional] - use custom target in VLC server (default is **127.0.0.1**)
+- `--port` [optional] - use custom port in VLC server (default is **8989**)
