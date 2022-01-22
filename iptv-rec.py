@@ -59,7 +59,11 @@ if arg_link == '':
         os.system('./iptvcat-scraper '+arg_name)
     if PlatformName == 'Windows':
         os.system('.\\iptvcat-scraper.exe '+arg_name)
-    ScrapedData = json.loads(open('data/all-streams.json', "r", encoding="utf8").read())
+    try:
+        ScrapedData = json.loads(open('data/all-streams.json', "r", encoding="utf8").read())
+    except:
+        print("ERROR: Failed to read stream list.")
+        exit()
     os.chdir('..')
 
     result = []
