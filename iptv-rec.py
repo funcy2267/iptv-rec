@@ -3,6 +3,7 @@ import sys
 import os
 import subprocess
 import platform
+import time
 import json
 
 VLC_SERVER_TARGET = "127.0.0.1"
@@ -13,7 +14,7 @@ args = sys.argv
 PlatformName = platform.system()
 
 arg_output = 'output.mpg'
-arg_time = 60
+arg_time = 0
 arg_autosort = ''
 arg_status = ''
 arg_country = ''
@@ -87,27 +88,29 @@ else:
 
 if PlatformName == 'Linux':
     VLC_BIN = 'vlc'
-    CMD_TIMEOUT = 'timeout '+str(arg_time)+'s'
 if PlatformName == 'Windows':
     VLC_BIN = os.environ['PROGRAMFILES']+'/VideoLAN/VLC/vlc.exe'
-    CMD_TIMEOUT = 'powershell Start-Sleep -S '+str(arg_time)+' ; taskkill /F /IM vlc.exe'
-
-def vlc_start(VLC_ARGS):
-    if PlatformName == 'Linux':
-        os.system(CMD_TIMEOUT+' '+VLC_BIN+' '+VLC_ARGS+' &')
-    if PlatformName == 'Windows':
-        subprocess.Popen(VLC_BIN+' '+VLC_ARGS)
-        subprocess.Popen(CMD_TIMEOUT)
 
 def vlc_server():
-    VLC_ARGS = '-I dummy -vvv '+stream_link+' --sout "#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}" --sout-all --sout-keep --repeat'
-    vlc_start(VLC_ARGS)
+    VLC_ARGS = ['-I', 'dummy', '-vvv', stream_link, '--sout', '#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}', '--sout-all', '--sout-keep', '--repeat']
+    global sp_vlc_server
+    sp_vlc_server = subprocess.Popen([VLC_BIN] + VLC_ARGS)
 def vlc_record():
-    VLC_ARGS = '-I dummy -vvv http://'+VLC_SERVER_URL+' --sout "#standard{access=file,mux=ts,dst='+arg_output+'}" --sout-all --run-time='+str(arg_time)
-    vlc_start(VLC_ARGS)
+    VLC_ARGS = ['-I', 'dummy', '-vvv', 'http://'+VLC_SERVER_URL, '--sout', '#standard{access=file,mux=ts,dst='+arg_output+'}', '--sout-all', '--run-time='+str(arg_time)]
+    global sp_vlc_record
+    sp_vlc_record = subprocess.Popen([VLC_BIN] + VLC_ARGS)
 def vlc_preview():
-    VLC_ARGS = '-vvv http://'+VLC_SERVER_URL+' --run-time='+str(arg_time)
-    vlc_start(VLC_ARGS)
+    VLC_ARGS = ['-vvv', 'http://'+VLC_SERVER_URL, '--run-time='+str(arg_time)]
+    global sp_vlc_preview
+    sp_vlc_preview = subprocess.Popen([VLC_BIN] + VLC_ARGS)
+
+def vlc_terminate():
+    if 's' in arg_mode:
+        sp_vlc_server.terminate()
+    if 'r' in arg_mode:
+        sp_vlc_record.terminate()
+    if 'p' in arg_mode:
+        sp_vlc_preview.terminate()
 
 if 's' in arg_mode:
     vlc_server()
@@ -115,3 +118,9 @@ if 'r' in arg_mode:
     vlc_record()
 if 'p' in arg_mode:
     vlc_preview()
+
+if arg_time == 0:
+    input("Press enter to quit...")
+else:
+    time.sleep(arg_time)
+vlc_terminate()
