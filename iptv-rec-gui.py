@@ -6,12 +6,12 @@ from tkinter import DISABLED
 
 PlatformName = platform.system()
 
-def gui():
+def gui_main():
     root = tk.Tk()
-
-    root.geometry("600x500")
+    root.geometry("650x500")
     root.wm_title("iptv-rec GUI")
 
+    #Left frame
     frame_left = tk.Frame()
     frame_left.pack(side='left', padx=(20, 20))
 
@@ -93,11 +93,12 @@ def gui():
     MbpsEntry = tk.Entry(MbpsLabelFrame, width=5)
     MbpsEntry.grid(row=0, column=1, padx=10, pady=10)
 
+    #Right frame
     frame_right = tk.Frame()
     frame_right.pack(side='right', padx=(20, 20))
 
     #Autosort
-    AutosortLabelFrame = tk.LabelFrame(frame_right, text="Autosort")
+    AutosortLabelFrame = tk.LabelFrame(frame_right, text="Auto-sort")
     AutosortLabelFrame.pack()
     global AutosortCheckbuttonEnableVar
     AutosortCheckbuttonEnableVar = tk.IntVar()
@@ -165,10 +166,11 @@ def gui():
     PortEntry = tk.Entry(PortLabelFrame, width=10)
     PortEntry.grid(row=0, column=1, padx=10, pady=10)
 
+    #Bottom frame
     frame_bottom = tk.Frame()
     frame_bottom.pack(side='bottom')
 
-    StartButton = tk.Button(frame_bottom, text = "Start", command=start)
+    StartButton = tk.Button(frame_bottom, text = "Start", command=start, height=2, width=10)
     StartButton.grid(padx = 3, pady = 3)
 
     root.mainloop()
@@ -203,6 +205,7 @@ def start():
         args = args + ['--target', TargetEntry.get()]
     if PortCheckbuttonVar.get() == 1:
         args = args + ['--port', PortEntry.get()]
+
     if PlatformName == 'Linux':
         PYTHON_BIN = 'python3'
     if PlatformName == 'Windows':
@@ -211,4 +214,4 @@ def start():
     command = ' '.join([PYTHON_BIN, iptvrec]+args)
     os.system(command)
 
-gui()
+gui_main()

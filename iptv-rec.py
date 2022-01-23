@@ -100,32 +100,39 @@ def vlc_start():
         VLC_ARGS = ['-I', 'dummy', '-vvv', stream_link, '--sout', '#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}', '--sout-all', '--sout-keep', '--repeat']
         global sp_vlc_server
         sp_vlc_server = subprocess.Popen([VLC_BIN] + VLC_ARGS)
+        print("VLC server started.")
     if 'r' in arg_mode:
         VLC_ARGS = ['-I', 'dummy', '-vvv', 'http://'+VLC_SERVER_URL, '--sout', '#standard{access=file,mux=ts,dst='+arg_output+'}', '--sout-all']
         if arg_timeout > 0:
             VLC_ARGS = VLC_ARGS + ['--run-time='+str(arg_timeout)]
         global sp_vlc_record
         sp_vlc_record = subprocess.Popen([VLC_BIN] + VLC_ARGS)
+        print("VLC recording started.")
     if 'p' in arg_mode:
         VLC_ARGS = ['-vvv', 'http://'+VLC_SERVER_URL]
         if arg_timeout > 0:
             VLC_ARGS = VLC_ARGS + ['--run-time='+str(arg_timeout)]
         global sp_vlc_preview
         sp_vlc_preview = subprocess.Popen([VLC_BIN] + VLC_ARGS)
+        print("VLC preview started.")
 
 def vlc_terminate():
     if 's' in arg_mode:
         sp_vlc_server.terminate()
+        print("VLC server terminated.")
     if 'r' in arg_mode:
         sp_vlc_record.terminate()
+        print("VLC recording terminated.")
     if 'p' in arg_mode:
         sp_vlc_preview.terminate()
+        print("VLC preview terminated.")
 
 if arg_link == '':
     stream_link = select_stream_link(scrap_data())
 else:
     stream_link = arg_link
 vlc_start()
+
 if arg_timeout == 0:
     input("Press enter to quit...")
 else:
