@@ -20,8 +20,8 @@ func writeToFile() {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	ioutil.WriteFile("data/all-streams.json", streamsAll, 0644)
-	//ioutil.WriteFile("data/all-by-country.json", streamsCountry, 0644)
+	ioutil.WriteFile("all-streams.json", streamsAll, 0644)
+	//ioutil.WriteFile("all-by-country.json", streamsCountry, 0644)
 }
 
 func main() {

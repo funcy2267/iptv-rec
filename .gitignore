@@ -3,4 +3,4 @@
 __pycache__/
 /iptvcat-scraper/iptvcat-scraper
 /iptvcat-scraper/iptvcat-scraper.exe
-/iptvcat-scraper/data/
+/iptvcat-scraper/all-streams.json
