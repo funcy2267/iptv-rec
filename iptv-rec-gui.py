@@ -2,29 +2,36 @@
 import os
 import platform
 import tkinter as tk
+import tkinter.messagebox as tkmb
 from tkinter import DISABLED
+from os.path import exists
 
 PlatformName = platform.system()
 
-def gui_main():
+def main_window():
     root = tk.Tk()
     root.geometry("650x500")
     root.wm_title("iptv-rec GUI")
 
-    #Left frame
-    frame_left = tk.Frame()
-    frame_left.pack(side='left', padx=(20, 20))
+    #Top frame
+    frame_top = tk.Frame()
+    frame_top.pack(side='top')
 
     #Channel name
-    ChannelNameLabelFrame = tk.LabelFrame(frame_left, text="Channel name")
+    ChannelNameLabelFrame = tk.LabelFrame(frame_top, text="Channel name")
     ChannelNameLabelFrame.pack()
     global ChannelNameCheckbuttonVar
     ChannelNameCheckbuttonVar = tk.IntVar()
     ChannelNameCheckbutton = tk.Checkbutton(ChannelNameLabelFrame, var=ChannelNameCheckbuttonVar)
     ChannelNameCheckbutton.grid(row=0, column=0)
+    ChannelNameCheckbutton.select()
     global ChannelNameEntry
     ChannelNameEntry = tk.Entry(ChannelNameLabelFrame, width=30)
     ChannelNameEntry.grid(row=0, column=1, padx=10, pady=10)
+
+    #Left frame
+    frame_left = tk.Frame()
+    frame_left.pack(side='left', padx=20)
 
     #Mode
     ModeLabelFrame = tk.LabelFrame(frame_left, text="Mode")
@@ -53,6 +60,7 @@ def gui_main():
     StatusCheckbuttonEnableFilterVar = tk.IntVar()
     StatusCheckbuttonEnableFilter = tk.Checkbutton(StatusLabelFrame, text="Enable filter", var=StatusCheckbuttonEnableFilterVar)
     StatusCheckbuttonEnableFilter.grid(row=0, column=0)
+    StatusCheckbuttonEnableFilter.select()
     global StatusVar
     StatusVar = tk.StringVar(None, 'online')
     StatusRadiobuttonOnline = tk.Radiobutton(StatusLabelFrame, text="Online", var=StatusVar, value="online")
@@ -95,7 +103,7 @@ def gui_main():
 
     #Right frame
     frame_right = tk.Frame()
-    frame_right.pack(side='right', padx=(20, 20))
+    frame_right.pack(side='right', padx=20)
 
     #Autosort
     AutosortLabelFrame = tk.LabelFrame(frame_right, text="Auto-sort")
@@ -170,12 +178,12 @@ def gui_main():
     frame_bottom = tk.Frame()
     frame_bottom.pack(side='bottom')
 
-    StartButton = tk.Button(frame_bottom, text = "Start", command=start, height=2, width=10)
+    StartButton = tk.Button(frame_bottom, text = "Start", command=start_iptv, height=1, width=8)
     StartButton.grid(padx = 3, pady = 3)
 
     root.mainloop()
 
-def start():
+def start_iptv():
     args = []
     if ChannelNameCheckbuttonVar.get() == 1:
         args = args + ['--name', ChannelNameEntry.get().replace(' ', '_')]
@@ -206,12 +214,21 @@ def start():
     if PortCheckbuttonVar.get() == 1:
         args = args + ['--port', PortEntry.get()]
 
+    if AutosortCheckbuttonEnableVar.get() == 0:
+        tk.messagebox.showinfo('Information', 'Check console and select stream.')
+
+    iptvrec = 'iptv-rec.py'
     if PlatformName == 'Linux':
         PYTHON_BIN = 'python3'
+        pre_cmd = [PYTHON_BIN, iptvrec]
     if PlatformName == 'Windows':
-        PYTHON_BIN = 'py'
-    iptvrec = 'iptv-rec.py'
-    command = ' '.join([PYTHON_BIN, iptvrec]+args)
+        if exists(iptvrec):
+            PYTHON_BIN = 'py'
+            pre_cmd = [PYTHON_BIN, iptvrec]
+        else:
+            iptvrec = '.\\iptv-rec.exe'
+            pre_cmd = [iptvrec]
+    command = ' '.join(pre_cmd+args)
     os.system(command)
 
-gui_main()
+main_window()
