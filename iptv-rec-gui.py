@@ -104,19 +104,19 @@ def main_window():
     frame_right = tk.Frame()
     frame_right.pack(side='right', padx=20)
 
-    #Autosort
-    AutosortLabelFrame = tk.LabelFrame(frame_right, text="Auto-sort")
-    AutosortLabelFrame.pack()
-    global AutosortCheckbuttonEnableVar
-    AutosortCheckbuttonEnableVar = tk.IntVar()
-    AutosortCheckbuttonEnable = tk.Checkbutton(AutosortLabelFrame, text="Enable", var=AutosortCheckbuttonEnableVar)
-    AutosortCheckbuttonEnable.grid(row=0, column=0)
-    global AutosortVar
-    AutosortVar = tk.StringVar(None, 'liveliness')
-    AutosortRadiobuttonLiveliness = tk.Radiobutton(AutosortLabelFrame, text="Liveliness", var=AutosortVar, value="liveliness")
-    AutosortRadiobuttonLiveliness.grid(row=1, column=0)
-    AutosortRadiobuttonMbps = tk.Radiobutton(AutosortLabelFrame, text="Mbps", var=AutosortVar, value="mbps")
-    AutosortRadiobuttonMbps.grid(row=1, column=1)
+    #Autoselect
+    AutoselectLabelFrame = tk.LabelFrame(frame_right, text="Auto-select")
+    AutoselectLabelFrame.pack()
+    global AutoselectCheckbuttonEnableVar
+    AutoselectCheckbuttonEnableVar = tk.IntVar()
+    AutoselectCheckbuttonEnable = tk.Checkbutton(AutoselectLabelFrame, text="Enable", var=AutoselectCheckbuttonEnableVar)
+    AutoselectCheckbuttonEnable.grid(row=0, column=0)
+    global AutoselectVar
+    AutoselectVar = tk.StringVar(None, 'liveliness')
+    AutoselectRadiobuttonLiveliness = tk.Radiobutton(AutoselectLabelFrame, text="Liveliness", var=AutoselectVar, value="liveliness")
+    AutoselectRadiobuttonLiveliness.grid(row=1, column=0)
+    AutoselectRadiobuttonMbps = tk.Radiobutton(AutoselectLabelFrame, text="Mbps", var=AutoselectVar, value="mbps")
+    AutoselectRadiobuttonMbps.grid(row=1, column=1)
 
     #Output
     OutputLabelFrame = tk.LabelFrame(frame_right, text="Output file")
@@ -200,8 +200,8 @@ def start_iptv():
         args = args + ['--liveliness', LivelinessEntry.get()]
     if MbpsCheckbuttonEnableFilterVar.get() == 1:
         args = args + ['--mbps', MbpsEntry.get()]
-    if AutosortCheckbuttonEnableVar.get() == 1:
-        args = args + ['--autosort', AutosortVar.get()]
+    if AutoselectCheckbuttonEnableVar.get() == 1:
+        args = args + ['--autoselect', AutoselectVar.get()]
     if OutputCheckbuttonVar.get() == 1:
         args = args + ['--output', OutputEntry.get().replace(' ', '_')]
     if TimeoutCheckbuttonVar.get() == 1:
@@ -213,8 +213,8 @@ def start_iptv():
     if PortCheckbuttonVar.get() == 1:
         args = args + ['--port', PortEntry.get()]
 
-    if AutosortCheckbuttonEnableVar.get() == 0:
-        tkmb.showinfo('Information', 'Check console and select stream.')
+    if AutoselectCheckbuttonEnableVar.get() == 0:
+        tkmb.showinfo('Information', 'Check console and select a stream.')
 
     iptvrec = 'iptv-rec.py'
     if PlatformName == 'Linux':
@@ -226,7 +226,7 @@ def start_iptv():
             pre_cmd = [python_cmd, iptvrec]
         else:
             pre_cmd = ['.\\iptv-rec.exe']
-    command = ' '.join(pre_cmd+args)
-    os.system(command)
+    cmd = ' '.join(pre_cmd+args)
+    os.system(cmd)
 
 main_window()

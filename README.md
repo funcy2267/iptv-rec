@@ -42,7 +42,7 @@ Run `./iptv-rec.py` (Linux) or `py .\iptv-rec.py` (Windows) with following argum
 - `--country` - filter channels by country (use `_` instead of spaces)
 - `--liveliness` - filter channels by liveliness (higher than `x`%)
 - `--mbps` - filter channels by Mbps (higher than `x`)
-- `--autosort` - sort channels by [**liveliness**/**mbps**] from highest to smallest and pick the first one automatically (useful in scripts, as it does not ask for anything)
+- `--autoselect` - pick stream with the highest value [**liveliness**/**mbps**] from list automatically (no input from user is required)
 - `--output` - output file for recording (must be an `.mpg` file, use `_` instead of spaces)
 - `--timeout` - timeout for given task in *seconds* (if not specified, you quit with enter)
 - `--link` - use custom link for IPTV stream

@@ -15,7 +15,7 @@ VLC_SERVER_PORT = "8989"
 
 arg_output = 'output.mpg'
 arg_timeout = 0
-arg_autosort = ''
+arg_autoselect = ''
 arg_status = ''
 arg_country = ''
 arg_liveliness = 0
@@ -37,8 +37,8 @@ for arg in args:
         arg_liveliness = int(args[i+1])
     if arg == "--mbps":
         arg_mbps = int(args[i+1])
-    if arg == "--autosort":
-        arg_autosort = args[i+1]
+    if arg == "--autoselect":
+        arg_autoselect = args[i+1]
     if arg == "--output":
         arg_output = args[i+1]
     if arg == "--timeout":
@@ -78,14 +78,15 @@ def select_stream_link(ScrapedData):
         if arg_status in stream['status'] and arg_country in stream['country'] and int(stream['liveliness']) >= arg_liveliness and int(stream['mbps']) >= arg_mbps:
             result = result + [stream]
 
-    if arg_autosort != '':
-        hv = 0
-        hv_index = 0
+    if arg_autoselect != '':
+        highest_value = 0
+        i=0
         for stream in result:
-            if int(stream[arg_autosort]) > hv:
-                hv = int(stream[arg_autosort])
-                result_index = hv_index
-            hv_index = hv_index + 1
+            stream_value = int(stream[arg_autoselect])
+            if stream_value > highest_value:
+                highest_value = stream_value
+                result_index = i
+            i=i+1
     else:
         separator = ' | '
         i=1
