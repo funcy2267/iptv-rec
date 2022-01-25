@@ -2,7 +2,6 @@
 import os
 import platform
 import tkinter as tk
-import tkinter.messagebox as tkmb
 from tkinter import DISABLED
 from os.path import exists
 
@@ -60,7 +59,6 @@ def main_window():
     StatusCheckbuttonEnableFilterVar = tk.IntVar()
     StatusCheckbuttonEnableFilter = tk.Checkbutton(StatusLabelFrame, text="Enable filter", var=StatusCheckbuttonEnableFilterVar)
     StatusCheckbuttonEnableFilter.grid(row=0, column=0)
-    StatusCheckbuttonEnableFilter.select()
     global StatusVar
     StatusVar = tk.StringVar(None, 'online')
     StatusRadiobuttonOnline = tk.Radiobutton(StatusLabelFrame, text="Online", var=StatusVar, value="online")
@@ -219,15 +217,14 @@ def start_iptv():
 
     iptvrec = 'iptv-rec.py'
     if PlatformName == 'Linux':
-        PYTHON_BIN = 'python3'
-        pre_cmd = [PYTHON_BIN, iptvrec]
+        python_cmd = 'python3'
+        pre_cmd = [python_cmd, iptvrec]
     if PlatformName == 'Windows':
         if exists(iptvrec):
-            PYTHON_BIN = 'py'
-            pre_cmd = [PYTHON_BIN, iptvrec]
+            python_cmd = 'py'
+            pre_cmd = [python_cmd, iptvrec]
         else:
-            iptvrec = '.\\iptv-rec.exe'
-            pre_cmd = [iptvrec]
+            pre_cmd = ['.\\iptv-rec.exe']
     command = ' '.join(pre_cmd+args)
     os.system(command)
 

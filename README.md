@@ -1,15 +1,15 @@
 # About
-**iptv-rec** lets you easily watch and record IPTV channels. Main feature is [IPTV-Cat](https://iptvcat.com) integration for easy stream searching.
+`iptv-rec` lets you easily watch and record IPTV channels. Main feature is [IPTV-Cat](https://iptvcat.com) integration for easy stream searching.
 ### Supported OS
 - Linux
 - Windows
 # Configuration
-You need to [install all dependencies](#installation) and [build the scraper](#scraper).
+You need to [install all requirements](#install-requirements) and [build the scraper](#scraper).
 ## Requirements
 - [Python 3.x](https://python.org/downloads/)
 - [GoLang](https://go.dev/dl/)
 - [VLC media player](https://videolan.org/)
-### Installation
+## Install requirements
 To install all requirements on:
 - Debian-based systems:
 ```
@@ -20,11 +20,11 @@ sudo apt update && sudo apt install python3 golang vlc -y
 winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e ; winget install --id=GoLang.Go -e
 ```
 ## Scraper
-Build the scraper: [scraper configuration](iptvcat-scraper/README.md#configuration).
+Go to iptvcat-scraper/ directory and [configure the scraper](iptvcat-scraper/README.md#configuration).
 ## py2exe
-If you want, you can build this project with **py2exe** to use independently from Python interpreter on Windows.
-### Module
-Install **py2exe** module with `pip`:
+If you want, you can build this project with py2exe to use independently from Python interpreter on Windows.
+### Install py2exe
+Install py2exe Python module:
 ```
 pip3 install py2exe
 ```
@@ -32,7 +32,7 @@ pip3 install py2exe
 ```
 py .\setup.py py2exe
 ```
-Distributable package will be located in `dist/` folder.
+Distributable version will be located in dist/ folder.
 # Usage
 ### CLI interface
 Run `./iptv-rec.py` (Linux) or `py .\iptv-rec.py` (Windows) with following arguments provided:
