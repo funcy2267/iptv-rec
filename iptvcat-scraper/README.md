@@ -1,5 +1,5 @@
 # Configuration
-Install required Go modules and build scraper:
+Install required Go modules and build the scraper:
 - Linux:
 ```
 go install && go build

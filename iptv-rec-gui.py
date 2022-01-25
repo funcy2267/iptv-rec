@@ -2,6 +2,7 @@
 import os
 import platform
 import tkinter as tk
+import tkinter.messagebox as tkmb
 from tkinter import DISABLED
 from os.path import exists
 
@@ -213,7 +214,7 @@ def start_iptv():
         args = args + ['--port', PortEntry.get()]
 
     if AutosortCheckbuttonEnableVar.get() == 0:
-        tk.messagebox.showinfo('Information', 'Check console and select stream.')
+        tkmb.showinfo('Information', 'Check console and select stream.')
 
     iptvrec = 'iptv-rec.py'
     if PlatformName == 'Linux':
