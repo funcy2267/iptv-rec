@@ -3,82 +3,113 @@ import sys
 import os
 import subprocess
 import platform
+import argparse
 import time
+from datetime import datetime
 import json
+import requests
+from bs4 import BeautifulSoup
 
-args = sys.argv
-ScraperPath = './iptvcat-scraper/'
 PlatformName = platform.system()
+HTML_PARSER = 'html.parser'
+output_ext = ".mpg"
 
-VLC_SERVER_TARGET = "127.0.0.1"
+parser = argparse.ArgumentParser(description='Search for channel by name or use link and choose mode.')
+parser.add_argument('channel_name', help='channel name to search')
+parser.add_argument('--link', action="store_true", help='use custom link for IPTV stream instead of channel name')
+parser.add_argument('mode', help='*r* for record, *p* for preview (server mode *s* is always launched by default, you can use multiple at the same time)')
+parser.add_argument('--status', default="", help='filter streams by status [on/off]')
+parser.add_argument('--country', default="", help='filter streams by country')
+parser.add_argument('--liveliness', type=int, default=0, help='filter streams by liveliness (higher than x percent)')
+parser.add_argument('--maturity', type=int, default=0, help='filter streams by maturity (higher than x days)')
+parser.add_argument('--mbps', type=int, default=0, help='filter streams by Mbps (higher than x mbps)')
+parser.add_argument('--autoselect', default=False, help='pick stream with the highest value [liveliness/mbps/maturity] from list automatically (no input from user is required)')
+parser.add_argument('--output', default="rec_"+datetime.now().strftime("%Y-%m-%d_%H-%M-%S")+output_ext, help='output file for recording ('+output_ext+')')
+parser.add_argument('--timeout', type=int, default=0, help='timeout for given task in seconds (if not specified, you quit with enter)')
+parser.add_argument('--host', default="127.0.0.1", help='use custom host for VLC server')
+parser.add_argument('--port', default="8989", help='use custom port for VLC server')
+args = parser.parse_args()
+
+arg_channel_name = args.channel_name
+arg_mode = "s"+args.mode
+arg_timeout = args.timeout
+arg_autoselect = args.autoselect
+arg_status = args.status
+arg_country = args.country
+arg_liveliness = args.liveliness
+arg_maturity = args.maturity
+arg_mbps = args.mbps
+arg_output = args.output
+arg_stream_link = args.link
+VLC_SERVER_HOST = "127.0.0.1"
 VLC_SERVER_PORT = "8989"
+VLC_SERVER_URL = VLC_SERVER_HOST+":"+VLC_SERVER_PORT
 
-arg_output = 'output.mpg'
-arg_timeout = 0
-arg_autoselect = ''
-arg_status = ''
-arg_country = ''
-arg_liveliness = 0
-arg_mbps = 0
-arg_mode = 's'
-arg_link = ''
-
-i=0
-for arg in args:
-    if arg == "--name":
-        arg_name = args[i+1]
-    if arg == "--mode":
-        arg_mode = arg_mode + args[i+1]
-    if arg == "--status":
-        arg_status = args[i+1]
-    if arg == "--country":
-        arg_country = args[i+1].lower()
-    if arg == "--liveliness":
-        arg_liveliness = int(args[i+1])
-    if arg == "--mbps":
-        arg_mbps = int(args[i+1])
-    if arg == "--autoselect":
-        arg_autoselect = args[i+1]
-    if arg == "--output":
-        arg_output = args[i+1]
-    if arg == "--timeout":
-        arg_timeout = int(args[i+1])
-    if arg == "--link":
-        arg_link = args[i+1]
-    if arg == "--target":
-        VLC_SERVER_TARGET = args[i+1]
-    if arg == "--port":
-        VLC_SERVER_PORT = args[i+1]
-    i=i+1
-
-VLC_SERVER_URL = VLC_SERVER_TARGET+':'+VLC_SERVER_PORT
+if arg_output[-4:] != output_ext:
+    arg_output += output_ext
 
 if PlatformName == 'Linux':
     VLC_BIN = 'vlc'
 if PlatformName == 'Windows':
     VLC_BIN = os.environ['PROGRAMFILES']+'/VideoLAN/VLC/vlc.exe'
 
-def scrap_data():
-    os.chdir(ScraperPath)
-    if PlatformName == 'Linux':
-        os.system('./iptvcat-scraper '+arg_name)
-    if PlatformName == 'Windows':
-        os.system('.\\iptvcat-scraper.exe '+arg_name)
-    try:
-        ScrapedData = json.loads(open('all-streams.json', "r", encoding="utf8").read())
-    except:
-        print("ERROR: Failed to read stream list.")
-        exit()
-    os.chdir('..')
+def format_string(string):
+    return(string.replace(" ", "_").lower())
+
+def scrap_data(search_query):
+    result = BeautifulSoup(requests.get("https://iptvcat.com/s/"+format_string(search_query)).text, HTML_PARSER).prettify().split('\n')
+    val_channel_name = []
+    val_country = []
+    val_link = []
+    val_maturity = []
+    val_status = []
+    val_lastChecked = []
+    val_mbps = []
+    val_liveliness = []
+    val_format = []
+    for i in range(len(result)):
+        line = result[i]
+        if 'span class="channel_name"' in line:
+            i2=i
+            while "</span>" not in result[i2]:
+                i2+=1
+            val_channel_name+=[result[i2-1].strip()]
+        if 'div class="live green"' in line:
+            val_liveliness+=[result[i+1].strip()]
+        if 'div class="mature"' in line:
+            val_maturity+=[result[i+1].strip()]
+        if 'div class="state' in line:
+            stream_status = result[i+1].strip()
+            if stream_status == "+":
+                stream_status_val = "on"
+            if stream_status == "-":
+                stream_status_val = "off"
+            val_status+=[stream_status_val]
+        if 'td class="channel_checked' in line:
+            val_lastChecked+=[result[i+2].strip()]
+        if 'td class="to_hide"' in line:
+            val_format+=[result[i+1].strip()]
+        if 'span title=""' in line:
+            val_mbps+=[result[i+1].strip()]
+        if 'td class="flag"' in line:
+            val_country+=[BeautifulSoup(result[i+2].strip(), HTML_PARSER).find()["title"]]
+        if 'table class="link_table"' in result[i]:
+            val_link+=[BeautifulSoup(result[i+14].strip(), HTML_PARSER).find()["href"]]
+    ScrapedData = []
+    for i in range(len(val_channel_name)):
+        ScrapedData+=[{"channel": val_channel_name[i], "link": val_link[i], "country": val_country[i], "liveliness": val_liveliness[i], "status": val_status[i], "lastChecked": val_lastChecked[i], "format": val_format[i], "mbps": val_mbps[i], "maturity": val_maturity[i]}]
     return(ScrapedData)
 
 def select_stream_link(ScrapedData):
     result = []
     for stream in ScrapedData:
-        if arg_status in stream['status'] and arg_country in stream['country'] and int(stream['liveliness']) >= arg_liveliness and int(stream['mbps']) >= arg_mbps:
-            result = result + [stream]
+        if arg_status in stream["status"] and format_string(arg_country) in format_string(stream["country"]) and int(stream["liveliness"]) >= arg_liveliness and int(stream["maturity"]) >= arg_maturity and int(stream["mbps"]) >= arg_mbps:
+            result += [stream]
+    if result == []:
+        print("No streams found.")
+        exit()
 
-    if arg_autoselect != '':
+    if arg_autoselect != False:
         highest_value = 0
         i=0
         for stream in result:
@@ -86,56 +117,56 @@ def select_stream_link(ScrapedData):
             if stream_value > highest_value:
                 highest_value = stream_value
                 result_index = i
-            i=i+1
+            i+=1
     else:
-        separator = ' | '
+        separator = "\n    "
         i=1
         for stream in result:
-            print(str(i)+'.', stream['channel']+separator+"Country: "+stream['country']+separator+"Liveliness: "+str(stream['liveliness'])+separator+"Status: "+stream['status']+separator+"Last checked: "+stream['lastChecked']+separator+"Format: "+stream['format']+separator+"mbps: "+str(stream['mbps']))
-            i=i+1
-        result_index = int(input('Which stream to use? '))-1
-    return(result[result_index]['link'])
+            print(str(i)+". "+stream["channel"]+separator+"Country: "+stream["country"]+separator+"Liveliness: "+str(stream["liveliness"])+separator+"Maturity: "+str(stream["maturity"])+separator+"Status: "+stream["status"]+separator+"Last checked: "+stream["lastChecked"]+separator+"Format: "+stream["format"]+separator+"mbps: "+str(stream["mbps"]))
+            i+=1
+        result_index = int(input("Which stream to use? "))-1
+    return(result[result_index]["link"])
 
-def vlc_start():
-    if 's' in arg_mode:
+def vlc_start(stream_link, mode, timeout):
+    if "s" in mode:
         VLC_ARGS = ['-I', 'dummy', '-vvv', stream_link, '--sout', '#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}', '--sout-all', '--sout-keep', '--repeat']
         global sp_vlc_server
         sp_vlc_server = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC server started.")
-    if 'r' in arg_mode:
+    if "r" in mode:
         VLC_ARGS = ['-I', 'dummy', '-vvv', 'http://'+VLC_SERVER_URL, '--sout', '#standard{access=file,mux=ts,dst='+arg_output+'}', '--sout-all']
-        if arg_timeout > 0:
-            VLC_ARGS = VLC_ARGS + ['--run-time='+str(arg_timeout)]
+        if timeout > 0:
+            VLC_ARGS += ['--run-time='+str(timeout)]
         global sp_vlc_record
         sp_vlc_record = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC recording started.")
-    if 'p' in arg_mode:
+    if "p" in mode:
         VLC_ARGS = ['-vvv', 'http://'+VLC_SERVER_URL]
-        if arg_timeout > 0:
-            VLC_ARGS = VLC_ARGS + ['--run-time='+str(arg_timeout)]
+        if timeout > 0:
+            VLC_ARGS += ['--run-time='+str(timeout)]
         global sp_vlc_preview
         sp_vlc_preview = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC preview started.")
 
-def vlc_terminate():
-    if 's' in arg_mode:
+def vlc_terminate(mode):
+    if "s" in mode:
         sp_vlc_server.terminate()
         print("VLC server terminated.")
-    if 'r' in arg_mode:
+    if "r" in mode:
         sp_vlc_record.terminate()
         print("VLC recording terminated.")
-    if 'p' in arg_mode:
+    if "p" in mode:
         sp_vlc_preview.terminate()
         print("VLC preview terminated.")
 
-if arg_link == '':
-    stream_link = select_stream_link(scrap_data())
+if arg_stream_link == False:
+    stream_link = select_stream_link(scrap_data(arg_channel_name))
 else:
-    stream_link = arg_link
-vlc_start()
+    stream_link = arg_channel_name
+vlc_start(stream_link, arg_mode, arg_timeout)
 
 if arg_timeout == 0:
     input("Press enter to quit...")
 else:
     time.sleep(arg_timeout)
-vlc_terminate()
+vlc_terminate(arg_mode)

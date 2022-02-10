@@ -1,26 +1,28 @@
 # About
-`iptv-rec` lets you easily watch and record IPTV channels. Main feature is [IPTV-Cat](https://iptvcat.com) integration for easy stream searching.
+`iptv-rec` lets you easily watch and record IPTV channels with CLI. Main feature is [IPTV-Cat](https://iptvcat.com) integration for stream searching.
 ### Supported OS
 - Linux
 - Windows
 # Configuration
-You need to [install all requirements](#install-requirements) and [build the scraper](#scraper).
+You need to install all requirements.
 ## Requirements
 - [Python 3.x](https://python.org/downloads/)
-- [GoLang](https://go.dev/dl/)
-- [VLC media player](https://videolan.org/)
+- [VLC media player](https://videolan.org/vlc)
 ## Install requirements
 To install all requirements on:
 - Debian-based systems:
 ```
-sudo apt update && sudo apt install python3 golang vlc -y
+sudo apt update && sudo apt install -y python3 vlc
 ```
 - Windows (run in PowerShell with admin privileges):
 ```
-winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e ; winget install --id=GoLang.Go -e
+winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e
 ```
-## Scraper
-Go to iptvcat-scraper/ directory and [configure the scraper](iptvcat-scraper/README.md#configuration).
+## Modules
+Install required Python modules:
+```
+pip3 install -r requirements.txt
+```
 ## py2exe
 If you want, you can build this project with py2exe to use independently from Python interpreter on Windows.
 ### Install py2exe
@@ -32,21 +34,15 @@ pip3 install py2exe
 ```
 py .\setup.py py2exe
 ```
-Distributable version will be located in dist/ folder.
+Distributable version will be located in `dist/` folder.
 # Usage
 ### CLI interface
-Run `./iptv-rec.py` (Linux) or `py .\iptv-rec.py` (Windows) with following arguments provided:
-- `--name` - channel name to search (use `_` instead of spaces)
-- `--mode` - `r` for **record**, `p` for **preview** (**server** mode is always launched by default, you can use multiple at the same time)
-- `--status` - filter channels by status [**online**/**offline**]
-- `--country` - filter channels by country (use `_` instead of spaces)
-- `--liveliness` - filter channels by liveliness (higher than `x`%)
-- `--mbps` - filter channels by Mbps (higher than `x`)
-- `--autoselect` - pick stream with the highest value [**liveliness**/**mbps**] from list automatically (no input from user is required)
-- `--output` - output file for recording (must be an `.mpg` file, use `_` instead of spaces)
-- `--timeout` - timeout for given task in *seconds* (if not specified, you quit with enter)
-- `--link` - use custom link for IPTV stream
-- `--target` - use custom target in VLC server (default is **127.0.0.1**)
-- `--port` - use custom port in VLC server (default is **8989**)
-### GUI interface
-Run `./iptv-rec-gui.py` (Linux) or `py .\iptv-rec-gui.py` (Windows).
+Run help for usage.
+- Linux:
+```
+./iptv-rec.py --help
+```
+- Windows:
+```
+py .\iptv-rec.py --help
+```

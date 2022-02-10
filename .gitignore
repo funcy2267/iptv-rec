@@ -1,10 +1,4 @@
-*.mpg
-*.bak
-
 __pycache__/
 dist/
 
-/iptvcat-scraper/iptvcat-scraper
-/iptvcat-scraper/iptvcat-scraper.exe
-
-/iptvcat-scraper/*.json
+*.mpg
