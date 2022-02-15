@@ -1,48 +1,25 @@
 # About
-`iptv-rec` lets you easily watch and record IPTV channels with CLI. Main feature is [IPTV-Cat](https://iptvcat.com) integration for stream searching.
-### Supported OS
-- Linux
-- Windows
-# Configuration
-You need to install all requirements.
-## Requirements
-- [Python 3.x](https://python.org/downloads/)
-- [VLC media player](https://videolan.org/vlc)
-## Install requirements
-To install all requirements on:
-- Debian-based systems:
+`iptv-rec` lets you easily watch and record IPTV channels with CLI and [IPTV-Cat](https://iptvcat.com) integration for stream searching.
+# Setup
+## Linux
+Install requirements (Debain-based systems):
 ```
-sudo apt update && sudo apt install -y python3 vlc
+sudo apt update && sudo apt install -y python3 python3-pip vlc && pip3 install -r ./requirements.txt
 ```
-- Windows (run in PowerShell with admin privileges):
+Installation:
 ```
-winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e
+INSTALL_DEST="/usr/local/bin/iptv-rec" && sudo cp ./iptv-rec.py $INSTALL_DEST && sudo chmod +x $INSTALL_DEST
 ```
-## Modules
-Install required Python modules:
+Usage:
 ```
-pip3 install -r requirements.txt
+iptv-rec --help
 ```
-## py2exe
-If you want, you can build this project with py2exe to use independently from Python interpreter on Windows.
-### Install py2exe
-Install py2exe Python module:
+## Windows
+Install requirements (run in PowerShell with admin privileges):
 ```
-pip3 install py2exe
+winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e ; pip3 install -r .\requirements.txt
 ```
-### Setup
-```
-py .\setup.py py2exe
-```
-Distributable version will be located in `dist/` folder.
-# Usage
-### CLI interface
-Run help for usage.
-- Linux:
-```
-./iptv-rec.py --help
-```
-- Windows:
+Usage:
 ```
 py .\iptv-rec.py --help
 ```
