@@ -1,13 +1,11 @@
 #!/usr/bin/python3
 
-import sys
 import os
 import subprocess
 import platform
 import argparse
 import time
 from datetime import datetime
-import json
 import requests
 from bs4 import BeautifulSoup
 
