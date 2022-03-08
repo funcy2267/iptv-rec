@@ -13,10 +13,12 @@ PlatformName = platform.system()
 HTML_PARSER = 'html.parser'
 output_ext = ".mpg"
 
+# Parse arguments
 parser = argparse.ArgumentParser(description='Search for channel by name or use link and choose mode.')
 parser.add_argument('channel_name', help='channel name to search')
 parser.add_argument('--link', action="store_true", help='use custom link for IPTV stream instead of channel name')
-parser.add_argument('mode', help='set mode: [s/r/p] for server, record, preview (you can pass multiple letters in argument) (server mode is always launched by default)')
+parser.add_argument('--record', '-r', action="store_true", help='enable recording')
+parser.add_argument('--preview', '-p', action="store_true", help='enable preview')
 parser.add_argument('--status', default="", help='filter streams by status [online/offline]')
 parser.add_argument('--country', default="", help='filter streams by country')
 parser.add_argument('--liveliness', type=int, default=0, help='filter streams by liveliness (higher than x percent)')
@@ -30,7 +32,9 @@ parser.add_argument('--port', default="8989", help='use custom port for VLC serv
 args = parser.parse_args()
 
 arg_channel_name = args.channel_name
-arg_mode = "s"+args.mode
+arg_mode_server = True
+arg_mode_record = args.record
+arg_mode_preview = args.preview
 arg_timeout = args.timeout
 arg_autoselect = args.autoselect
 arg_status = args.status
@@ -42,8 +46,9 @@ arg_output = args.output
 arg_stream_link = args.link
 VLC_SERVER_HOST = args.host
 VLC_SERVER_PORT = args.port
-VLC_SERVER_URL = VLC_SERVER_HOST+":"+VLC_SERVER_PORT
+VLC_SERVER_URL = VLC_SERVER_HOST+':'+VLC_SERVER_PORT
 
+# Detect current platform and set binary paths
 if PlatformName == "Linux":
     VLC_BIN = "vlc"
 if PlatformName == "Windows":
@@ -52,6 +57,7 @@ if PlatformName == "Windows":
 def format_string(string):
     return(string.replace(" ", "_").lower())
 
+# Scrap data from IPTV-Cat
 def scrap_data(search_query):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36", "Accept-Language": "en-US"}
     result = BeautifulSoup(requests.get("https://iptvcat.com/s/"+format_string(search_query), headers=headers).text, HTML_PARSER).prettify().split("\n")
@@ -94,9 +100,13 @@ def scrap_data(search_query):
             val_link+=[BeautifulSoup(result[i+14].strip(), HTML_PARSER).find()["href"]]
     ScrapedData = []
     for i in range(len(val_channel_name)):
-        ScrapedData+=[{"channel": val_channel_name[i], "link": val_link[i], "country": val_country[i], "liveliness": val_liveliness[i], "status": val_status[i], "lastChecked": val_lastChecked[i], "format": val_format[i], "mbps": val_mbps[i], "maturity": val_maturity[i]}]
+        try:
+            ScrapedData += [{"channel": val_channel_name[i], "link": val_link[i], "country": val_country[i], "liveliness": val_liveliness[i], "status": val_status[i], "lastChecked": val_lastChecked[i], "format": val_format[i], "mbps": val_mbps[i], "maturity": val_maturity[i]}]
+        except IndexError:
+            pass
     return(ScrapedData)
 
+# Interactive stream selection
 def select_stream_link(ScrapedData):
     result = []
     for stream in ScrapedData:
@@ -124,35 +134,37 @@ def select_stream_link(ScrapedData):
             i+=1
     return(result[result_index]["link"])
 
-def vlc_start(vlc_mode, vlc_stream_link, vlc_timeout):
-    if vlc_timeout > 0:
-        TIMEOUT_ARG = ['--run-time='+str(vlc_timeout)]
+# Set timeout if defined and start VLC processes
+def vlc_start(vlc_stream_link):
+    if arg_timeout > 0:
+        TIMEOUT_ARG = ['--run-time='+str(arg_timeout)]
     else:
         TIMEOUT_ARG = []
-    if "s" in vlc_mode:
+    if arg_mode_server == True:
         VLC_ARGS = ['-I', 'dummy', '-vvv', vlc_stream_link, '--sout', '#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}', '--sout-all', '--sout-keep', '--repeat'] + TIMEOUT_ARG
         global sp_vlc_server
         sp_vlc_server = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC server started.")
-    if "r" in vlc_mode:
+    if arg_mode_record == True:
         VLC_ARGS = ['-I', 'dummy', '-vvv', 'http://'+VLC_SERVER_URL, '--sout', '#standard{access=file,mux=ts,dst='+arg_output+'}', '--sout-all'] + TIMEOUT_ARG
         global sp_vlc_record
         sp_vlc_record = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC recording started.")
-    if "p" in vlc_mode:
+    if arg_mode_preview == True:
         VLC_ARGS = ['-vvv', 'http://'+VLC_SERVER_URL] + TIMEOUT_ARG
         global sp_vlc_preview
         sp_vlc_preview = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC preview started.")
 
-def vlc_terminate(vlc_mode):
-    if "s" in vlc_mode:
+# Terminate VLC processes
+def vlc_terminate():
+    if arg_mode_server == True:
         sp_vlc_server.terminate()
         print("VLC server terminated.")
-    if "r" in vlc_mode:
+    if arg_mode_record == True:
         sp_vlc_record.terminate()
         print("VLC recording terminated.")
-    if "p" in vlc_mode:
+    if arg_mode_preview == True:
         sp_vlc_preview.terminate()
         print("VLC preview terminated.")
 
@@ -160,10 +172,10 @@ if arg_stream_link == False:
     stream_link = select_stream_link(scrap_data(arg_channel_name))
 else:
     stream_link = arg_channel_name
-vlc_start(arg_mode, stream_link, arg_timeout)
-
+print("Target: " + VLC_SERVER_URL)
+vlc_start(stream_link)
 if arg_timeout != 0:
     time.sleep(arg_timeout)
 else:
     input("Press enter to quit...")
-vlc_terminate(arg_mode)
+vlc_terminate()

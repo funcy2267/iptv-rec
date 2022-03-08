@@ -10,16 +10,20 @@ Installation:
 ```
 INSTALL_DEST="/usr/local/bin/iptv-rec" && sudo cp ./iptv-rec.py $INSTALL_DEST && sudo chmod +x $INSTALL_DEST
 ```
-Usage:
+### Usage
 ```
 iptv-rec --help
 ```
 ## Windows
 Install requirements (run in PowerShell with admin privileges):
 ```
-winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e ; pip3 install -r .\requirements.txt
+winget install --id=VideoLAN.VLC -e ; winget install --id=Python.Python.3 -e
 ```
-Usage:
+Re-login and run:
+```
+pip3 install -r .\requirements.txt
+```
+### Usage
 ```
 py .\iptv-rec.py --help
 ```
