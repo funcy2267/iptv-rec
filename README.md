@@ -8,7 +8,7 @@ sudo apt update && sudo apt install -y python3 python3-pip vlc && pip3 install -
 ```
 Installation:
 ```
-INSTALL_DEST="/usr/local/bin/iptv-rec" && sudo cp ./iptv-rec.py $INSTALL_DEST && sudo chmod +x $INSTALL_DEST
+export INSTALL_DEST="/usr/local/bin/iptv-rec" && sudo cp ./iptv-rec.py $INSTALL_DEST && sudo chmod +x $INSTALL_DEST
 ```
 ### Usage
 ```

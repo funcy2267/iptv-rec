@@ -172,6 +172,7 @@ if arg_stream_link == False:
     stream_link = select_stream_link(scrap_data(arg_channel_name))
 else:
     stream_link = arg_channel_name
+print("Stream: " + stream_link)
 print("Target: " + VLC_SERVER_URL)
 vlc_start(stream_link)
 if arg_timeout != 0:
