@@ -141,17 +141,17 @@ def vlc_start(vlc_stream_link):
     else:
         TIMEOUT_ARG = []
     if arg_mode_server == True:
-        VLC_ARGS = ['-I', 'dummy', '-vvv', vlc_stream_link, '--sout', '#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}', '--sout-all', '--sout-keep', '--repeat'] + TIMEOUT_ARG
+        VLC_ARGS = ['-I', 'dummy', vlc_stream_link, '--sout', '#standard{access=http,mux=ts,dst='+VLC_SERVER_URL+'}', '--sout-all', '--sout-keep', '--repeat'] + TIMEOUT_ARG
         global sp_vlc_server
         sp_vlc_server = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC server started.")
     if arg_mode_record == True:
-        VLC_ARGS = ['-I', 'dummy', '-vvv', 'http://'+VLC_SERVER_URL, '--sout', '#standard{access=file,mux=ts,dst='+arg_output+'}', '--sout-all'] + TIMEOUT_ARG
+        VLC_ARGS = ['-I', 'dummy', 'http://'+VLC_SERVER_URL, '--sout', '#standard{access=file,mux=ts,dst='+arg_output+'}', '--sout-all'] + TIMEOUT_ARG
         global sp_vlc_record
         sp_vlc_record = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC recording started.")
     if arg_mode_preview == True:
-        VLC_ARGS = ['-vvv', 'http://'+VLC_SERVER_URL] + TIMEOUT_ARG
+        VLC_ARGS = ['http://'+VLC_SERVER_URL] + TIMEOUT_ARG
         global sp_vlc_preview
         sp_vlc_preview = subprocess.Popen([VLC_BIN] + VLC_ARGS)
         print("VLC preview started.")
