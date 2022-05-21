@@ -57,9 +57,12 @@ if PlatformName == "Windows":
 def format_string(string):
     return(string.replace(" ", "_").lower())
 
-# Scrap data from IPTV-Cat
+# Scrap and parse data from IPTV-Cat
 def scrap_data(search_query):
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36", "Accept-Language": "en-US"}
+    headers = {
+    	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",
+    	"Accept-Language": "en-US"
+    	}
     result = BeautifulSoup(requests.get("https://iptvcat.com/s/"+format_string(search_query), headers=headers).text, HTML_PARSER).prettify().split("\n")
     val_channel_name = []
     val_country = []
@@ -100,10 +103,37 @@ def scrap_data(search_query):
             val_link+=[BeautifulSoup(result[i+14].strip(), HTML_PARSER).find()["href"]]
     ScrapedData = []
     for i in range(len(val_channel_name)):
+    	# Parse channel metadata
         try:
-            ScrapedData += [{"channel": val_channel_name[i], "link": val_link[i], "country": val_country[i], "liveliness": val_liveliness[i], "status": val_status[i], "lastChecked": val_lastChecked[i], "format": val_format[i], "mbps": val_mbps[i], "maturity": val_maturity[i]}]
+            ScrapedData += [{
+            	"channel": val_channel_name[i],
+            	"link": val_link[i],
+            	"country": val_country[i],
+            	"liveliness": val_liveliness[i],
+            	"status": val_status[i],
+            	"lastChecked": val_lastChecked[i],
+            	"format": val_format[i],
+            	"mbps": val_mbps[i],
+            	"maturity": val_maturity[i]
+            }]
         except IndexError:
-            pass
+            # Minimal result parse if data type is unsupported
+            try:
+            	set_str = "Unknown"
+            	set_int = 0
+            	ScrapedData += [{
+            		"channel": val_channel_name[i]+" [!]",
+            		"link": val_link[i],
+            		"country": set_str,
+            		"liveliness": set_int,
+            		"status": set_str,
+            		"lastChecked": set_str,
+            		"format": set_str,
+            		"mbps": set_int,
+            		"maturity": set_int
+            	}]
+            except IndexError:
+            	print("Error parsing channel metadata: " + val_channel_name[i])
     return(ScrapedData)
 
 # Interactive stream selection
